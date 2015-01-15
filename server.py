@@ -1,7 +1,7 @@
 import SocketServer
 # coding: utf-8
 
-# Copyright 2013 Abram Hindle, Eddie Antonio Santos
+# Copyright 2013 Abram Hindle, Eddie Antonio Santos, Brian Trinh
 # 
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -25,14 +25,76 @@ import SocketServer
 # run: python freetests.py
 
 # try: curl -v -X GET http://127.0.0.1:8080/
+# stackoverflow.com/questions/13750265
+# www.w3.org/protocols/rfc2616/rf2616-sec10.html HTTP status codes
+# stackoverflow.com/questions/2724348 os.path
 
+import os.path
 
 class MyWebServer(SocketServer.BaseRequestHandler):
-    
+
     def handle(self):
         self.data = self.request.recv(1024).strip()
-        print ("Got a request of: %s\n" % self.data)
-        self.request.sendall("OK")
+        self.path = os.path.join(os.getcwd(), "www") #www folder path joined to itempath
+        line = self.data.splitlines()
+        split = line[0].split() #['X', 'Y', 'Z'] format
+        size = "0"
+        ftype = " "
+        output = ""
+
+        if split[0] != "GET":
+            response = "HTTP/1.1 404 Not Found\r\n"
+            ctype = "Content-Type: text/html\r\n"
+            output = "<html><body><b>Page not found.</b></body></html>\r\n"
+        else:
+            url = os.path.normpath(os.path.join(self.path +split[1]))
+           
+
+            # If starts with our path and ends with '/''
+            if (split[1].endswith("/") and url.startswith(self.path)):
+                url = os.path.join(url, "index.html")
+                '''
+            # If starts with our path and ends with '/''
+            elif (split[1].endswith("/deep") and url.startswith(self.path)):
+                self.path = os.path.join(os.getcwd(), "www/deep")
+                url = os.path.join(url, "index.html")'''
+
+
+            # If .css or .html in our 'www' path
+            if (os.path.isfile(url) and url.startswith(self.path)):
+                response = "HTTP/1.1 200 OK\r\n"
+                #print (url+"\n\n"+self.path)
+                #ctype = "Content-Type: text/plain\r\n"# sets plaintext unless otherwise
+
+                if url.endswith(".html"):
+                    ftype = "html"
+                    ctype = "Content-Type: text/html\r\n"
+                elif url.endswith(".css"):
+                    ftype = "css"
+                    ctype = "Content-Type: text/css\r\n"
+
+                
+
+                file = open(url)
+                output = file.read()
+                file.close()
+            # 404 for when /www/do-not-implement-this-page-it-is-not-found etc
+            else:
+                response = "HTTP/1.1 404 Not Found\r\n"
+                ctype = "Content-Type: text/html\r\n"
+                output = "<html><body><b>Page not found.</b></body></html>\r\n"
+                                    
+        # Content-length logic
+        if(ftype == "html" or ftype == "css"):
+            clength = str(os.path.getsize(url)) + "\r\n\r\n"    
+        else:
+            clength = "\r\n\r\n"
+        
+        # Construct the final output
+        self.request.sendall(response
+                             + ctype 
+                             + clength 
+                             + output)
 
 if __name__ == "__main__":
     HOST, PORT = "localhost", 8080

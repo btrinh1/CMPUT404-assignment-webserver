@@ -28,6 +28,11 @@ import SocketServer
 # stackoverflow.com/questions/13750265
 # www.w3.org/protocols/rfc2616/rf2616-sec10.html HTTP status codes
 # stackoverflow.com/questions/2724348 os.path
+# stackoverflow.com/questions/2209755
+# en.wikipedia.org/wiki/HTTP_301
+# stackoverflow.com/questions/82831
+# stackoverflow.com/questions/3037349
+# stackoverflow.com/questions/10132943
 
 import os.path
 
@@ -35,7 +40,7 @@ class MyWebServer(SocketServer.BaseRequestHandler):
 
     def handle(self):
         self.data = self.request.recv(1024).strip()
-        self.path = os.path.join(os.getcwd(), "www") #www folder path joined to itempath
+        path = os.path.join(os.getcwd(), "www") #www folder path joined to itempath
         line = self.data.splitlines()
         split = line[0].split() #['X', 'Y', 'Z'] format
         size = "0"
@@ -47,23 +52,28 @@ class MyWebServer(SocketServer.BaseRequestHandler):
             ctype = "Content-Type: text/html\r\n"
             output = "<html><body><b>Page not found.</b></body></html>\r\n"
         else:
-            url = os.path.normpath(os.path.join(self.path +split[1]))
+            url = os.path.normpath(os.path.join(path +split[1]))
            
 
             # If starts with our path and ends with '/''
-            if (split[1].endswith("/") and url.startswith(self.path)):
+            if (split[1].endswith("/") and url.startswith(path)):
                 url = os.path.join(url, "index.html")
                 '''
             # If starts with our path and ends with '/''
-            elif (split[1].endswith("/deep") and url.startswith(self.path)):
-                self.path = os.path.join(os.getcwd(), "www/deep")
+            elif (split[1].endswith("/deep") and url.startswith(path)):
+                path = os.path.join(os.getcwd(), "www/deep")
                 url = os.path.join(url, "index.html")'''
 
 
             # If .css or .html in our 'www' path
-            if (os.path.isfile(url) and url.startswith(self.path)):
+            #if(not os.path.isfile(url) and url.startswith(path))
+            if (os.path.isdir(url) and url.startswith(path)):
+                response = "HTTP/1.1 301 Moved Permanently\r\n"
+                ctype = "Content-Type: text/html\r\n"
+                ftype = "redir"
+            elif (os.path.isfile(url) and url.startswith(path)):
                 response = "HTTP/1.1 200 OK\r\n"
-                #print (url+"\n\n"+self.path)
+                #print (url+"\n\n"+path)
                 #ctype = "Content-Type: text/plain\r\n"# sets plaintext unless otherwise
 
                 if url.endswith(".html"):
@@ -72,8 +82,6 @@ class MyWebServer(SocketServer.BaseRequestHandler):
                 elif url.endswith(".css"):
                     ftype = "css"
                     ctype = "Content-Type: text/css\r\n"
-
-                
 
                 file = open(url)
                 output = file.read()
@@ -84,9 +92,12 @@ class MyWebServer(SocketServer.BaseRequestHandler):
                 ctype = "Content-Type: text/html\r\n"
                 output = "<html><body><b>Page not found.</b></body></html>\r\n"
                                     
-        # Content-length logic
+        # Content-length logic / redirect
         if(ftype == "html" or ftype == "css"):
-            clength = str(os.path.getsize(url)) + "\r\n\r\n"    
+            clength = str(os.path.getsize(url)) + "\r\n\r\n"  
+        # If is 3XX redirect then instead of content-length specify location of redirect
+        elif(ftype == "redir"):
+            clength = "Location: %s/\r\n\r\n" %(split[1])
         else:
             clength = "\r\n\r\n"
         

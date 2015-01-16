@@ -50,7 +50,7 @@ class MyWebServer(SocketServer.BaseRequestHandler):
         if split[0] != "GET":
             response = "HTTP/1.1 404 Not Found\r\n"
             ctype = "Content-Type: text/html\r\n"
-            output = "<html><body><b>Page not found.</b></body></html>\r\n"
+            output = "<html><body><b>404</b> Page not found.</body></html>\r\n"
         else:
             url = os.path.normpath(os.path.join(path +split[1]))
            
@@ -90,11 +90,11 @@ class MyWebServer(SocketServer.BaseRequestHandler):
             else:
                 response = "HTTP/1.1 404 Not Found\r\n"
                 ctype = "Content-Type: text/html\r\n"
-                output = "<html><body><b>Page not found.</b></body></html>\r\n"
+                output = "<html><body><b>404</b> Page not found.</body></html>\r\n"
                                     
         # Content-length logic / redirect
         if(ftype == "html" or ftype == "css"):
-            clength = str(os.path.getsize(url)) + "\r\n\r\n"  
+            clength = "Content-Length: "+str(os.path.getsize(url)) + "\r\n\r\n"  
         # If is 3XX redirect then instead of content-length specify location of redirect
         elif(ftype == "redir"):
             clength = "Location: %s/\r\n\r\n" %(split[1])
@@ -103,9 +103,11 @@ class MyWebServer(SocketServer.BaseRequestHandler):
         
         # Construct the final output
         self.request.sendall(response
-                             + ctype 
-                             + clength 
+                             + ctype
+                             + clength
                              + output)
+                             #+ clength 
+                             #+ output)
 
 if __name__ == "__main__":
     HOST, PORT = "localhost", 8080

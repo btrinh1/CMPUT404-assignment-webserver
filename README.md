@@ -24,12 +24,12 @@ compatible) http://docs.python.org/2/library/socketserver.html
 
 References
 ===========
-# stackoverflow.com/questions/13750265
-# www.w3.org/protocols/rfc2616/rf2616-sec10.html HTTP status codes
-# stackoverflow.com/questions/2724348 os.path
-# stackoverflow.com/questions/2209755
-# en.wikipedia.org/wiki/HTTP_301
-# stackoverflow.com/questions/82831
-# stackoverflow.com/questions/3037349
-# stackoverflow.com/questions/10132943
+* stackoverflow.com/questions/13750265
+* www.w3.org/protocols/rfc2616/rf2616-sec10.html HTTP status codes
+* stackoverflow.com/questions/2724348 os.path
+* stackoverflow.com/questions/2209755
+* en.wikipedia.org/wiki/HTTP_301
+* stackoverflow.com/questions/82831
+* stackoverflow.com/questions/3037349
+* stackoverflow.com/questions/10132943
 

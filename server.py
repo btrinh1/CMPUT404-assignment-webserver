@@ -25,14 +25,6 @@ import SocketServer
 # run: python freetests.py
 
 # try: curl -v -X GET http://127.0.0.1:8080/
-# stackoverflow.com/questions/13750265
-# www.w3.org/protocols/rfc2616/rf2616-sec10.html HTTP status codes
-# stackoverflow.com/questions/2724348 os.path
-# stackoverflow.com/questions/2209755
-# en.wikipedia.org/wiki/HTTP_301
-# stackoverflow.com/questions/82831
-# stackoverflow.com/questions/3037349
-# stackoverflow.com/questions/10132943
 
 import os.path
 
@@ -50,20 +42,13 @@ class MyWebServer(SocketServer.BaseRequestHandler):
         if split[0] != "GET":
             response = "HTTP/1.1 404 Not Found\r\n"
             ctype = "Content-Type: text/html\r\n"
-            output = "<html><body><b>404</b> Page not found.</body></html>\r\n"
+            output = "<html><body><b>Page not found.</b></body></html>\r\n"
         else:
-            url = os.path.normpath(os.path.join(path +split[1]))
-           
+            url = os.path.normpath(os.path.join(path +split[1]))           
 
             # If starts with our path and ends with '/''
             if (split[1].endswith("/") and url.startswith(path)):
                 url = os.path.join(url, "index.html")
-                '''
-            # If starts with our path and ends with '/''
-            elif (split[1].endswith("/deep") and url.startswith(path)):
-                path = os.path.join(os.getcwd(), "www/deep")
-                url = os.path.join(url, "index.html")'''
-
 
             # If .css or .html in our 'www' path
             #if(not os.path.isfile(url) and url.startswith(path))
@@ -73,8 +58,6 @@ class MyWebServer(SocketServer.BaseRequestHandler):
                 ftype = "redir"
             elif (os.path.isfile(url) and url.startswith(path)):
                 response = "HTTP/1.1 200 OK\r\n"
-                #print (url+"\n\n"+path)
-                #ctype = "Content-Type: text/plain\r\n"# sets plaintext unless otherwise
 
                 if url.endswith(".html"):
                     ftype = "html"
@@ -90,11 +73,11 @@ class MyWebServer(SocketServer.BaseRequestHandler):
             else:
                 response = "HTTP/1.1 404 Not Found\r\n"
                 ctype = "Content-Type: text/html\r\n"
-                output = "<html><body><b>404</b> Page not found.</body></html>\r\n"
+                output = "<html><body><b>Page not found.</b></body></html>\r\n"
                                     
         # Content-length logic / redirect
         if(ftype == "html" or ftype == "css"):
-            clength = "Content-Length: "+str(os.path.getsize(url)) + "\r\n\r\n"  
+            clength = str(os.path.getsize(url)) + "\r\n\r\n"  
         # If is 3XX redirect then instead of content-length specify location of redirect
         elif(ftype == "redir"):
             clength = "Location: %s/\r\n\r\n" %(split[1])
@@ -103,11 +86,9 @@ class MyWebServer(SocketServer.BaseRequestHandler):
         
         # Construct the final output
         self.request.sendall(response
-                             + ctype
-                             + clength
+                             + ctype 
+                             + clength 
                              + output)
-                             #+ clength 
-                             #+ output)
 
 if __name__ == "__main__":
     HOST, PORT = "localhost", 8080

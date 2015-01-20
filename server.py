@@ -40,9 +40,10 @@ class MyWebServer(SocketServer.BaseRequestHandler):
         output = ""
 
         if split[0] != "GET":
-            response = "HTTP/1.1 404 Not Found\r\n"
+            # HTTP Error 405 Method not allowed maybe?
+            response = "HTTP/1.1 405 Method Not Allowed.\r\n"
             ctype = "Content-Type: text/html\r\n"
-            output = "<html><body><b>Page not found.</b></body></html>\r\n"
+            output = "<html><body><b>405</b> Method Not Allowed</body></html>\r\n"
         else:
             url = os.path.normpath(os.path.join(path +split[1]))           
 
